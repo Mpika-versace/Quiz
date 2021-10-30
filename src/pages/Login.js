@@ -1,8 +1,9 @@
-import React,{useRef,useContext,useState} from 'react';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import spiderman from "../images/spiderman.png";
-import { FirebaseContext } from "../backend/FirebaseContexte";
-import { Link,useHistory } from 'react-router-dom';
+
+
 
 
 
@@ -11,37 +12,14 @@ import { Link,useHistory } from 'react-router-dom';
 
 export default function Login() 
 {
-    const firebase = useContext(FirebaseContext);
-    console.log(firebase);
-    const{signupUser,errors,errorMessage}=firebase
-    console.log(errors);
-    const data=
-    {
-        email:'',
-        password:'',
-    }
-    const [user, setUser] = useState(data);
+    
    
-    const{email,password}=user;
 
-    const refUser= useRef(null);
-    console.log(user);
-
-    const verifyInput=( email!=='' && password!=='')?<Button color="true" type='submit'>Inscription</Button>:<Button  disabled={true}>Inscription</Button>
+   
    
 
 
-    const handleChange=(e)=>
-    {
-        
-        e.preventDefault();
-        setUser({...user,[e.target.id]:e.target.value});
-        console.log(e.target.id);
-    }
-    // output error Message
-    const message=(errors)&&<p>{errorMessage}</p>;
-    // redirection
-    let history = useHistory();
+  
     return (
         <Wrapper>
             <Container>
@@ -50,24 +28,12 @@ export default function Login()
                         <img src={spiderman} alt="ironman" />
                     </Image>
                     <FormContainer>
-                        {message}
                         <h3>connexion</h3>
-                        <Form onSubmit=
-                            {
-                                 (e)=> 
-                                {
-                                    e.preventDefault(); 
-                                    signupUser(email,password).then(user=>{
-                                        setUser({...data});
-                                        // redirection
-                                        message&&history.push("/welcome");  
-                                    });    
-                                }
-                            }>
+                        <Form >
                             
-                            <input onChange={handleChange} type='mail'  placeholder="Email" ref={refUser}  id='email' value={email} />
-                            <input onChange={handleChange} type='password' placeholder="password" ref={refUser} id='password' value={password} />
-                            {verifyInput}
+                            <input  type='mail'  placeholder="Email"  id='email'  />
+                            <input  type='password' placeholder="password"  id='password' />
+                            
                         </Form>
                         <div className='login'> <Link to="/login">Nouveau sur Marvel Quiz ? S'inscrire maintenant</Link></div>
                     </FormContainer>
