@@ -8,6 +8,7 @@ import Footer from './components/Footer';
 import Welcome from './pages/Welcome';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
+import ForgetPassword from './pages/ForgetPassword'
 import Errorpage from './pages/Errorpage';
 import { BrowserRouter as Router,Route,Switch} from 'react-router-dom';
 
@@ -28,6 +29,7 @@ function App()
           <Route exact path="/"><Landing /></Route>
           <Route path="/login"> <Login /></Route>
           <Route path="/signup"> <SignUp /></Route>
+          <Route path="/forget"> <ForgetPassword /></Route>
           <Route > <Errorpage /></Route>
         
         </Switch> 

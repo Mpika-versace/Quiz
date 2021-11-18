@@ -1,7 +1,8 @@
 import React,{useState} from "react";
-import  {auth}  from "../backend/Firebase";
-import {createUserWithEmailAndPassword} from "firebase/auth";
-  
+import  {auth,db}  from "../backend/Firebase";
+import {createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut,sendPasswordResetEmail} from "firebase/auth";
+//   create the database with firebase
+import {doc,setDoc,getDoc} from 'firebase/firestore'
 
 
 const FirebaseContext=React.createContext();
@@ -9,43 +10,35 @@ const FirebaseContext=React.createContext();
 
  function AuthProvider({children}) 
 {
-    const [errors, setError] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-    
+    console.log(doc)
+    const [userEmail, setUserEmail] = useState("v");
+
     // inscription
-    const signupUser= async(email,password)=>
-    {
-        try 
-        {
-            let user=await createUserWithEmailAndPassword(auth,email,password)
-            console.log(user);
-        } catch (error) 
-        {
-            setError(!errors)
-            setErrorMessage(error.message);
-           
-        }
+    const signupUser=(email,password)=> createUserWithEmailAndPassword(auth,email,password)
+             
+
+    // Connexion
         
-       
+    const loginUser=  (email,password)=> signInWithEmailAndPassword(auth,email,password); 
 
-    };
-
-        // Connexion
-    const loginUser=(email,password)=>
-    {
-    //     const auth=getAuth(Firebase);
-    //    return signInWithEmailAndPassword(auth,email,password)
-
-    }
+    
     //deconnection 
-    const signOutUser=()=>
-    {
-        // const auth = getAuth();
-        // return signOut(auth);
-    } 
+    const signOutUser=()=> signOut(auth);
+
+    // connection in the database
+
+    const userDB=(uid)=>doc(db,`users/${uid}`);
+     
    
     return(
-        <FirebaseContext.Provider value={{signupUser,loginUser,signOutUser,errors,errorMessage}}>
+        <FirebaseContext.Provider value={
+            {
+                signupUser,loginUser,
+                signOutUser,onAuthStateChanged,
+                userEmail,
+                sendPasswordResetEmail,auth,
+                db,userDB,setDoc,getDoc
+            }}>
             {children}
         </FirebaseContext.Provider>
     )

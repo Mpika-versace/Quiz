@@ -69,7 +69,7 @@ export default function Landing()
         let x=setTimeout(() => 
         {
             setImage(true);
-        }, 4000);
+        }, 1000);
         
         return ()=>
         {

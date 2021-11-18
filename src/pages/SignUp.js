@@ -1,4 +1,4 @@
-import React,{useRef,useContext,useState} from 'react';
+import React,{useContext,useState} from 'react';
 import styled from 'styled-components';
 import ironman from "../images/ironman.png";
 import { FirebaseContext } from "../backend/FirebaseContexte";
@@ -9,12 +9,13 @@ import { Link,useHistory } from 'react-router-dom';
 
 
 
+
 export default function SignUp() 
 {
+  
     const firebase = useContext(FirebaseContext);
-    console.log(firebase);
-    const{signupUser,errors,errorMessage}=firebase
-    console.log(errors);
+    const{signupUser,userEmail,userDB,setDoc}=firebase;
+    // console.log(db,collection,addDoc)
     const data=
     {
         pseudo:'',
@@ -23,11 +24,11 @@ export default function SignUp()
         comfirPassword:''
     }
     const [user, setUser] = useState(data);
+    // Error Message inscription
+    const [error, setErrors] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
    
     const{pseudo,email,password,comfirPassword}=user;
-
-    const refUser= useRef(null);
-    console.log(user);
 
     const verifyInput=(pseudo!=='' && email!=='' && password!=='' && password===comfirPassword)?<Button color="true" type='submit'>Inscription</Button>:<Button  disabled={true}>Inscription</Button>
    
@@ -36,12 +37,49 @@ export default function SignUp()
     const handleChange=(e)=>
     {
         
-        e.preventDefault();
+        // e.preventDefault();
         setUser({...user,[e.target.id]:e.target.value});
-        console.log(e.target.id);
     }
+
+    const handleSubmit=(e)=> 
+    {
+        e.preventDefault(); 
+        // userStatus()
+            signupUser(email,password)
+            .then(user=>
+                {
+                   setDoc(userDB(user.user.uid),
+                   {
+                        pseudo,
+                        email
+                   }) 
+                    history.push("/welcome");
+                    // userDB({pseudo,email})
+                    
+                    // add the user data in the database firestore
+                    /*try 
+                    {
+                        const docRef= addDoc(collection(db,"users"),
+                        {
+                            pseudo,
+                            email
+                        });
+                        
+                    } catch (error) {
+                        console.error("Error adding document: ", error);
+                    }
+                    */
+                })
+            .catch ((error)=>
+        {
+            setErrors(true)
+            setErrorMessage(error.message)
+        })
+            
+    }
+
     // output error Message
-    const message=(errors)&&<p>{errorMessage}</p>;
+    const message=(error)&&<p>{errorMessage}</p>;
     // redirection
     let history = useHistory();
     return (
@@ -52,24 +90,14 @@ export default function SignUp()
                         <img src={ironman} alt="ironman" />
                     </Image>
                     <FormContainer>
+                        {error&&<h2>your email:{userEmail}</h2>}
                         {message}
                         <h3>inscrption</h3>
-                        <Form onSubmit=
-                            {
-                                 (e)=> 
-                                {
-                                    e.preventDefault(); 
-                                    signupUser(email,password).then(user=>{
-                                        setUser({...data});
-                                        // redirection
-                                        message&&history.push("/welcome");  
-                                    });    
-                                }
-                            }>
-                            <input onChange={handleChange} type='text'   placeholder="Pseudo" ref={refUser} id='pseudo' value={pseudo} />
-                            <input onChange={handleChange} type='mail'  placeholder="Email" ref={refUser}  id='email' value={email} />
-                            <input onChange={handleChange} type='password' placeholder="password" ref={refUser} id='password' value={password} />
-                            <input onChange={handleChange} type='password' placeholder="confirm password" ref={refUser} id='comfirPassword' value={comfirPassword} />
+                        <Form onSubmit={handleSubmit}>
+                            <input onChange={handleChange} type='text'   placeholder="Pseudo"  id='pseudo' value={pseudo} />
+                            <input onChange={handleChange} type='mail'  placeholder="Email"   id='email' value={email} required />
+                            <input onChange={handleChange} type='password' placeholder="password"  id='password' value={password} />
+                            <input onChange={handleChange} type='password' placeholder="confirm password"  id='comfirPassword' value={comfirPassword} />
                             {verifyInput}
                         </Form>
                         <div className='login'> <Link to="/login">Déja inscrit;Connectez-vous</Link></div>

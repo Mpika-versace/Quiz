@@ -1,9 +1,9 @@
-import React,{useState,useContext} from 'react';
+import React,{useContext,useState,useEffect} from 'react';
 import { Link,useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import spiderman from "../images/spiderman.png";
+import deadpool from "../images/deadpool.png";
 import {FirebaseContext} from '../backend/FirebaseContexte';
-import {useForm,useFormState} from 'react-hook-form'
+import {useForm} from 'react-hook-form'
 
 
 
@@ -12,83 +12,67 @@ import {useForm,useFormState} from 'react-hook-form'
 
 
 
-export default function Login() 
+export default function ForgetPassword() 
 {
+   
     let history=useHistory();
-    // console.log(history);
-    const{register,handleSubmit,watch,formState:{isValidating,isDirty,isSubmitSuccessful,isValid,isSubmitting}}=useForm({mode:'onChange'});
+    const{register,handleSubmit,formState:{isValidating,isDirty,isSubmitSuccessful,isValid,isSubmitting}}=useForm({mode:'onChange'});
     /*const{isValid}=useFormState;
     console.log(isSubmitting);
     console.log(isSubmitSuccessful)
     console.log(isDirty)
     console.log(isValidating)
     */
+   const [emailUser, setIEmailUser] = useState(false);
+   const [errorMessage, setErrorMessage] = useState("");
    
+   useEffect(() => {
+       if(emailUser)
+       {
+         setTimeout(()=>{setIEmailUser(!emailUser)},3000)
+       }
+       return () => {
+           clearTimeout(setTimeout(()=>{setIEmailUser(!emailUser)},3000))
+       }
+   }, [emailUser])
     
     const firebase = useContext(FirebaseContext);
-    const{loginUser}=firebase;
-    const onSubmit=({email,password})=>
+    const{sendPasswordResetEmail,auth}=firebase;
+    
+    const onSubmit=({email})=>
     {
-        console.log(email,password);
-        
-        loginUser(email,password).then(connexion=>
-        {
-           history.push("./Welcome")
-        })
-        .catch((error)=>
-        {
-            console.log(error.message)
-        })
-        
-    }
-    
-    
-
-    /* const data=
-    //     {
-    //         email:'',
-    //         password:''
-    //     }
-       
-
-    // const [userLogin, setUserLogin] = useState(data);
-    // const{email,password}=userLogin;
-    // const handleChange=(e)=>
-    // {
-    //     e.preventDefault();
-    //     setUserLogin({...userLogin,[e.target.id]:e.target.value});
-        
-        
-    // };
-    // console.log(userLogin)
-    
-    // const button=(password.length>5 && email!=="")?<Button type="submit" color="true">Connexion</Button>:<Button disabled>Connexion</Button>
-    console.log(register("email"));
-    console.log(errors)
-    const onSubmit = ({email,password})=>{
         console.log(email);
-        console.log(222)
-    }*/
+        sendPasswordResetEmail(auth,email)
+        .then(()=>
+        { setTimeout(() => 
+            {
+                history.push("/login")
+            }, 5000); 
+        })
+        .catch(error=>
+        {
+            setIEmailUser(true);
+            const errorCode=error.code;
+            setErrorMessage(error.message)
+        })  
+    }
+    // verifier si l'utilisateur existe
+    const verifyEmail=(emailUser)&&<span>{errorMessage}</span>;
     return (
         <Wrapper>
             <Container>
                 <Flex>
                     <Image>
-                        <img src={spiderman} alt="ironman" />
+                        <img src={deadpool} alt="ironman" />
                     </Image>
                     <FormContainer>
-                        <h3>connexion</h3>
-                        {/* <Form onSubmit={(e)=>{
-                            e.preventDefault();
-                            console.log(1)
-                            }} > */}
+                        {verifyEmail}
+                        <h3>Mot de passe oublié</h3>
+
                             <Form onSubmit={handleSubmit(onSubmit)}>
-                            <input {...register("email",{required:true,pattern:/^\S+@\S+$/i})}  type='mail'  placeholder="Email"  id='email' autoComplete="off" />
-                            {/* {(errors.email)&&<span className="alert">merci de remplir le champs</span>} */}
-                            <input  {...register("password",{minLength:6,maxLength:16})} type='password' placeholder="password"  id='password'  />
-                            {/* {(errors.email)&&<span className="alert">mot de passe compris entre 6 et 16 caractere</span>} */}
-                            {/* {button} */}
-                            {(isValid)?<Button color="true"  type="submit">connexion</Button>:<Button disabled>connexion</Button>}
+                            <input {...register("email",{required:true,pattern:/^\S+@\S+[.a-z]{2,15}/i})}  type='mail'  placeholder="Email"  id='email' autoComplete="off" />
+                            
+                            {(isValid)?<Button color="true"  type="submit">Récupérer</Button>:<Button disabled>Récupérer</Button>}
                         </Form>
                         <div className='login'> <Link to="/signup">Nouveau sur Marvel Quiz ? S'inscrire maintenant</Link></div>
                     </FormContainer>
@@ -142,6 +126,17 @@ const FormContainer=styled.div`
                 font-size:1.4rem;
             }
         }
+        span
+        {
+            display: inline-block;
+            text-align: center;
+            border: 1px solid;
+            margin:1rem;
+            padding: .5rem;
+            width: 100%;
+            font-size: 1.2rem;
+            color:red
+        }
 `;
 const Form=styled.form`
 padding:0 1rem;
@@ -181,4 +176,5 @@ background:${({theme,color})=>color&&theme.green};
 cursor:pointer;
 font-size:19px;
 `;
+
 

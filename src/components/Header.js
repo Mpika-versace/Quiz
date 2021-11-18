@@ -8,6 +8,11 @@ const Head=styled.header`
 const Container=styled.div`
         padding: 20px 0;
         flex-basis: 80%;
+        h1
+        {
+            font-size: clamp(3rem,4vw,5rem);
+            font-weight: bold;
+        }
 `;
 
 export default function Header() 
